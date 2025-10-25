@@ -6,6 +6,7 @@ import Login from "./pages/Login.jsx";
 import Sidebar from "./components/Sidebar.jsx";
 import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext.jsx";
+import WPEvidence from "./pages/WPEvidence.jsx";
 
 function App() {
   const { user } = useContext(AuthContext);
@@ -19,7 +20,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/kpi" element={<KPI />} />
-              <Route path="/kpi-v2" element={<KpiV2 />} />
+              <Route path="/wp-evidence" element={<WPEvidence />} />
             </Routes>
           </main>
         </div>
