@@ -1,0 +1,32 @@
+[
+  {
+    "district": "Kampar",
+    "ics": "ICS-01",
+    "indicator": "Number of trained farmers",
+    "target": 100,
+    "actual": 85,
+    "evidence": [
+      {
+        "name": "Training Attendance List",
+        "link": "https://drive.google.com/drive/folders/xxxx"
+      },
+      {
+        "name": "Training Photos",
+        "link": "https://drive.google.com/drive/folders/yyyy"
+      }
+    ]
+  },
+  {
+    "district": "Siak",
+    "ics": "ICS-02",
+    "indicator": "Number of certified farmers",
+    "target": 50,
+    "actual": 45,
+    "evidence": [
+      {
+        "name": "Certification Report",
+        "link": "https://drive.google.com/file/d/zzzz"
+      }
+    ]
+  }
+]
