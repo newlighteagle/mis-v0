@@ -6,11 +6,12 @@ export default function Sidebar() {
   const { logout, user } = useContext(AuthContext);
   const location = useLocation();
   const [menu, setMenu] = useState([]);
+  const BASE_URL = import.meta.env.VITE_EXPRESS_BASE_URL;
 
   useEffect(() => {
     const fetchMenu = async () => {
       try {
-        const res = await fetch("http://localhost:5050/api/menu");
+        const res = await fetch(`${BASE_URL}/api/menu`);
         const data = await res.json();
         setMenu(data);
       } catch (err) {

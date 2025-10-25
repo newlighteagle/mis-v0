@@ -3,6 +3,8 @@ import jwtDecode from "jwt-decode";
 
 export const AuthContext = createContext();
 
+const BASE_URL = import.meta.env.VITE_EXPRESS_BASE_URL;
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
@@ -21,7 +23,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await fetch("http://localhost:5050/api/users/login", {
+      const res = await fetch(`${BASE_URL}/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
