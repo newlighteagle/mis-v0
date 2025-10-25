@@ -1,116 +1,115 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { fetchWPEvidence } from "../utils/api.js";
+import DropdownFilter from "../components/DropdownFilter.jsx";
 
 export default function WPEvidence() {
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [expandedIds, setExpandedIds] = useState([]);
   const [districtFilter, setDistrictFilter] = useState("");
   const [icsFilter, setIcsFilter] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const baseURL = import.meta.env.VITE_EXPRESS_BASE_URL;
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get(`${baseURL}/api/wp-evidence`, {
-        params: {
-          district: districtFilter || undefined,
-          ics: icsFilter || undefined,
-        },
-      });
-      setData(res.data);
-    } catch (err) {
-      console.error("Failed to fetch WP Evidence:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [districtOptions, setDistrictOptions] = useState([]);
+  const [icsOptions, setIcsOptions] = useState([]);
 
   useEffect(() => {
-    fetchData();
-  }, [districtFilter, icsFilter]);
+    const getData = async () => {
+      const res = await fetchWPEvidence();
+      setData(res);
 
-  // group by district > ICS
-  const groupedData = data.reduce((acc, item) => {
-    if (!acc[item.district]) acc[item.district] = {};
-    if (!acc[item.district][item.ics]) acc[item.district][item.ics] = [];
-    acc[item.district][item.ics].push(item);
-    return acc;
-  }, {});
+      // Set unique filter options
+      setDistrictOptions([...new Set(res.map((d) => d.district))]);
+      setIcsOptions([...new Set(res.map((d) => d.ics))]);
+    };
+    getData();
+  }, []);
+
+  const toggleExpand = (id) => {
+    setExpandedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const filteredData = data.filter(
+    (d) =>
+      (districtFilter ? d.district === districtFilter : true) &&
+      (icsFilter ? d.ics === icsFilter : true) &&
+      (searchTerm
+        ? d.activity_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          d.activity.toLowerCase().includes(searchTerm.toLowerCase())
+        : true)
+  );
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">WP - Evidence</h1>
+      <h1 className="text-xl font-bold mb-4">WP - Evidence</h1>
 
-      {/* Filters */}
       <div className="flex gap-4 mb-4">
-        <input
-          placeholder="Filter by district"
+        <DropdownFilter
+          label="District"
+          options={districtOptions}
           value={districtFilter}
-          onChange={(e) => setDistrictFilter(e.target.value)}
-          className="border p-2 rounded"
+          onChange={setDistrictFilter}
         />
-        <input
-          placeholder="Filter by ICS"
+        <DropdownFilter
+          label="ICS"
+          options={icsOptions}
           value={icsFilter}
-          onChange={(e) => setIcsFilter(e.target.value)}
-          className="border p-2 rounded"
+          onChange={setIcsFilter}
         />
-        <button
-          onClick={fetchData}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Refresh
-        </button>
+        <div className="flex flex-col">
+          <label className="text-sm font-medium">Search Activity</label>
+          <input
+            type="text"
+            placeholder="Search code or activity"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border rounded p-2"
+          />
+        </div>
       </div>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <div className="overflow-x-auto border rounded">
-          {Object.entries(groupedData).map(([district, icsGroup]) => (
-            <div key={district} className="p-2 border-b">
-              <p className="font-bold text-lg">{district}</p>
-              {Object.entries(icsGroup).map(([ics, items]) => (
-                <div key={ics} className="pl-4 border-l mt-2">
-                  <p className="font-semibold">{ics}</p>
-                  <table className="w-full text-left mt-1 border">
-                    <thead>
-                      <tr className="bg-gray-100">
-                        <th className="p-2 border">Activity Code</th>
-                        <th className="p-2 border">Activity</th>
-                        <th className="p-2 border">Note</th>
-                        <th className="p-2 border">Date</th>
-                        <th className="p-2 border">Link</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {items.map((item) => (
-                        <tr key={item.id} className="hover:bg-gray-50">
-                          <td className="p-2 border">{item.activity_code}</td>
-                          <td className="p-2 border">{item.activity}</td>
-                          <td className="p-2 border">{item.evidence_note}</td>
-                          <td className="p-2 border">{item.evidence_date}</td>
-                          <td className="p-2 border">
-                            <a
-                              href={item.link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-500 underline"
-                            >
-                              View
-                            </a>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ))}
+      <div className="border rounded">
+        {filteredData.map((item) => (
+          <div key={item.id} className="border-b">
+            <div
+              className="flex justify-between p-2 cursor-pointer bg-gray-100 hover:bg-gray-200"
+              onClick={() => toggleExpand(item.id)}
+            >
+              <span>
+                {item.activity_code} - {item.activity}
+              </span>
+              <span>{expandedIds.includes(item.id) ? "-" : "+"}</span>
             </div>
-          ))}
-        </div>
-      )}
+            {expandedIds.includes(item.id) && (
+              <div className="p-2 bg-white">
+                <p>
+                  <strong>District:</strong> {item.district}
+                </p>
+                <p>
+                  <strong>ICS:</strong> {item.ics}
+                </p>
+                <p>
+                  <strong>Evidence Note:</strong> {item.evidence_note}
+                </p>
+                <p>
+                  <strong>Evidence Date:</strong> {item.evidence_date}
+                </p>
+                <p>
+                  <strong>Link:</strong>{" "}
+                  <a
+                    href={item.link}
+                    target="_blank"
+                    className="text-blue-500 underline"
+                  >
+                    View
+                  </a>
+                </p>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
