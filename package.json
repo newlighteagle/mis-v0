@@ -1,7 +1,8 @@
 {
-  "name": "catalog-evidence",
+  "name": "smallholderhub",
   "private": true,
   "version": "0.0.0",
+  "description": "Smallholderhub - PMIS for smallholder",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,10 +11,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.16",
+    "jwt-decode": "3.1.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.4"
+    "react-router-dom": "^6.30.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
@@ -26,7 +27,7 @@
     "eslint-plugin-react-refresh": "^0.4.22",
     "globals": "^16.4.0",
     "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.16",
+    "tailwindcss": "^3.4.18",
     "vite": "^7.1.7"
   }
 }
